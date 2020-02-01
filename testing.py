@@ -22,6 +22,10 @@ class RegistrationForm(FlaskForm):
     remember_me = BooleanField('remember-me', validators=[DataRequired()])
     # submit = SubmitField('Sign In')
 
+class SearchBar(FlaskForm):
+    From = StringField('From', validators=[DataRequired()])
+    To = StringField('To', validators=[DataRequired()])
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -43,9 +47,15 @@ def register():
     # username = request.form['email']
     # password = request.form['pass']
 
-@app.route("/dashboard")
-def dashboard():
-    return render_template('dashboard.html')
+@app.route("/dashboard", methods=['GET', 'POST'])
+def search():
+    search = SearchBar()
+    if search.validate_on_submit():
+        origin = search.From.data
+        dest = search.To.data
+    return render_template("dashboard.html", form=search)    
+# def dashboard():
+#     return render_template('dashboard.html')
 
 @app.route("/account")
 def account():
