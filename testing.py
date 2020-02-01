@@ -14,6 +14,34 @@ start_point = {
     'lng' : -82.37241
 }
 
+end_point = {
+    'lat' : 34.048927,
+    'lng' : -111.093735
+}
+
+waypoints = [
+    {
+        'location' : 'New York, NY',
+        'stopover' : False
+    },
+    {
+        'location' : 'Atlanta, GA',
+        'stopover' : False
+    }
+]
+
+request = {
+    "status": 0, 
+    "message": "Basic Route Created Successfully", 
+    "start": "University of Florida", 
+    "end": "Georgia Tech",
+    "deviations": [
+        {'location': {"lat" : 30.75429950000001, "lng" : -83.2732205}}, 
+        {'location': {"lat" : 32.1904529, "lng" : -83.7493425}}, 
+        {'location': {"lat" : 33.4328247, "lng" : -84.1849962}}
+    ]
+}
+
 class RegistrationForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
@@ -47,15 +75,19 @@ def register():
     # username = request.form['email']
     # password = request.form['pass']
 
+
 @app.route("/dashboard", methods=['GET', 'POST'])
 def search():
     search = SearchBar()
     if search.validate_on_submit():
         origin = search.From.data
         dest = search.To.data
-    return render_template("dashboard.html", form=search)    
+    return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search)  
 # def dashboard():
 #     return render_template('dashboard.html')
+
+
+
 
 @app.route("/account")
 def account():
