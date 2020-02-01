@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Robot Travel</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="all,follow">
+    <link rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/vendor/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/css/fontastic.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700">
+    <link rel="stylesheet" href="/static/css/grasp_mobile_progress_circle-1.0.0.min.css">
+    <link rel="stylesheet" href="/static/vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
+    <link rel="stylesheet" href="/static/css/style.default.css" id="theme-stylesheet">
+    <link rel="stylesheet" href="/static/css/custom.css">
+    <style>
+      #map {
+        height: 100%;
+        height: 500px;
+	    width: 1450px;
+        margin-top: 300px;
+        margin-bottom: 100px;
+        margin-left: 230px;
+        display: inline-block;
+      } 
+      html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Side Navbar -->
+    <nav class="side-navbar">
+      <div class="side-navbar-wrapper">
+        <div class="sidenav-header d-flex align-items-center justify-content-center">
+          <div class="sidenav-header-inner text-center">
+            <h2 class="h5">Firstname Lastname</h2>
+          </div>
+          <div class="sidenav-header-logo"><a href="/dashboard" class="brand-small text-center"><strong>F</strong><strong class="text-primary">L</A></strong></a></div>
+        </div>
+        <div class="main-menu">
+          <h5 class="sidenav-heading">Main</h5>
+          <ul id="side-main-menu" class="side-menu list-unstyled">                  
+            <li><a href="/dashboard"> <i class="icon-home"></i>Home</a></li>
+            <li><a href="/account"> <i class="fa fa-bar-chart"></i>Account</a></li>
+            <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-interface-windows"></i>History</a>
+              <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
+                <li><a>Query #1</a></li>
+                <li><a>Query #2</a></li>
+                <li><a>Query #3</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="page">
+      <header class="header">
+        <nav class="navbar">
+          <div class="container-fluid">
+            <div class="navbar-holder d-flex align-items-center justify-content-between">
+              <div class="navbar-header"><a id="toggle-btn" href="#" class="menu-btn"><i class="icon-bars"> </i></a><a href="/dashboard" class="navbar-brand">
+                  <div class="brand-text d-none d-md-inline-block"><span>Robot</span><strong class="text-primary">Travel</strong></div></a></div>
+              <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
+                <li class="nav-item"><a href="/" class="nav-link logout"> <span class="d-none d-sm-inline-block">Logout</span><i class="fa fa-sign-out"></i></a></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+      </header>
+      <section class="dashboard-counts section-padding">
+        <div class="container-fluid">
+          <div class="row justify-content-center">
+            <div class="col-xl-2 col-md-4 col-6">
+              <div class="wrapper count-title d-flex">
+                <!--<div class="icon"><i class="icon-user"></i></div>-->
+                <div class="name"><strong class="text-uppercase">Distance</strong><span>Miles</span>
+                  <div class="count-number">25</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+              <div class="wrapper count-title d-flex">
+                <!--<div class="icon"><i class="icon-padnote"></i></div>-->
+                <div class="name"><strong class="text-uppercase">Time</strong><span>Hours:Minutes</span>
+                  <div class="count-number">1:40</div>
+                </div>
+              </div>
+            </div>
+            <div class="col-xl-2 col-md-4 col-6">
+              <div class="wrapper count-title d-flex">
+               <!-- <div class="icon"><i class="icon-check"></i></div>-->
+                <div class="name"><strong class="text-uppercase">Destinations</strong><span>Number</span>
+                  <div class="count-number">342</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 14,
+          center: {lat : 29.64133, lng : -82.37241},
+          mapTypeId: 'terrain'
+        }); 
+        var coordinates = google.maps.geometry.encoding.decodePath("ii|sDpjwuNqDAcIAgCA]?w@?wBAc@AgAAyAAiBCK?aAA_A?eAA_A?iAAwB?m@AiC?Q?_C@Y@S?eA?M@eA@");
+        var path = new google.maps.Polyline({
+          path: coordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });
+        path.setMap(map);
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYUOtB-7CuX7Ex_BkbpOW4jP7redSjtTg&callback=initMap&libraries=geometry"></script>
+    <script src="/static/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/vendor/popper.js/umd/popper.min.js"> </script>
+    <script src="/static/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script src="/static/js/grasp_mobile_progress_circle-1.0.0.min.js"></script>
+    <script src="/static/vendor/jquery.cookie/jquery.cookie.js"> </script>
+    <script src="/static/vendor/chart.js/Chart.min.js"></script>
+    <script src="/static/vendor/jquery-validation/jquery.validate.min.js"></script>
+    <script src="/static/vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="/static/js/charts-home.js"></script>
+    <script src="/static/js/front.js"></script>
+  </body>
+</html>
