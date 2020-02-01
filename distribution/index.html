@@ -15,7 +15,16 @@
     <link rel="stylesheet" href="vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.css">
     <link rel="stylesheet" href="css/style.default.css" id="theme-stylesheet">
     <link rel="stylesheet" href="css/custom.css">
-    <link rel="shortcut icon" href="img/favicon.ico">
+    <style>
+      #map {
+        height: 100%;
+      } 
+      html, body {
+          height: 100%;
+          margin: 0;
+          padding: 0;
+        }
+    </style>
   </head>
   <body>
     <!-- Side Navbar -->
@@ -27,10 +36,8 @@
           <div class="sidenav-header-inner text-center">
             <h2 class="h5">Firstname Lastname</h2>
           </div>
-          <!-- Small Brand information, appears on minimized sidebar-->
           <div class="sidenav-header-logo"><a href="index.html" class="brand-small text-center"><strong>F</strong><strong class="text-primary">L</A></strong></a></div>
         </div>
-        <!-- Sidebar Navigation Menus-->
         <div class="main-menu">
           <h5 class="sidenav-heading">Main</h5>
           <ul id="side-main-menu" class="side-menu list-unstyled">                  
@@ -48,7 +55,6 @@
       </div>
     </nav>
     <div class="page">
-      <!-- navbar-->
       <header class="header">
         <nav class="navbar">
           <div class="container-fluid">
@@ -63,11 +69,9 @@
           </div>
         </nav>
       </header>
-      <!-- Counts Section -->
-      <section class="dashboard-counts section-padding">
+      <!--<section class="dashboard-counts section-padding">
         <div class="container-fluid">
           <div class="row">
-            <!-- Count item widget-->
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                 <div class="icon"><i class="icon-user"></i></div>
@@ -76,7 +80,6 @@
                 </div>
               </div>
             </div>
-            <!-- Count item widget-->
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                 <div class="icon"><i class="icon-padnote"></i></div>
@@ -85,7 +88,6 @@
                 </div>
               </div>
             </div>
-            <!-- Count item widget-->
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                 <div class="icon"><i class="icon-check"></i></div>
@@ -94,7 +96,6 @@
                 </div>
               </div>
             </div>
-            <!-- Count item widget-->
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                 <div class="icon"><i class="icon-bill"></i></div>
@@ -103,7 +104,6 @@
                 </div>
               </div>
             </div>
-            <!-- Count item widget-->
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                 <div class="icon"><i class="icon-list"></i></div>
@@ -112,7 +112,6 @@
                 </div>
               </div>
             </div>
-            <!-- Count item widget-->
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                 <div class="icon"><i class="icon-list-1"></i></div>
@@ -123,15 +122,33 @@
             </div>
           </div>
         </div>
-      </section>
-      <!-- Header Section-->
-      <section class="dashboard-header section-padding">
+      </section>-->
+      <div id="map"></div>
+      <!--<section class="dashboard-header section-padding">
         <div class="container-fluid">
-          <div class="row d-flex align-items-md-stretch">
-          </div>
+          <div class="row d-flex align-items-md-stretch" id="map"></div>
         </div>
-      </section>
+      </section>-->
     <!-- JavaScript files-->
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 14,
+          center: {lat : 29.64133, lng : -82.37241},
+          mapTypeId: 'terrain'
+        }); 
+        path.setMap(map);
+        /*var coordinates = google.maps.geometry.encoding.decodePath("ii|sDpjwuNqDAcIAgCA]?w@?wBAc@AgAAyAAiBCK?aAA_A?eAA_A?iAAwB?m@AiC?Q?_C@Y@S?eA?M@eA@");
+        var path = new google.maps.Polyline({
+          path: coordinates,
+          geodesic: true,
+          strokeColor: '#FF0000',
+          strokeOpacity: 1.0,
+          strokeWeight: 2
+        });*/
+      }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDYUOtB-7CuX7Ex_BkbpOW4jP7redSjtTg&callback=initMap&libraries=geometry"></script>
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/popper.js/umd/popper.min.js"> </script>
     <script src="vendor/bootstrap/js/bootstrap.min.js"></script>
@@ -141,7 +158,6 @@
     <script src="vendor/jquery-validation/jquery.validate.min.js"></script>
     <script src="vendor/malihu-custom-scrollbar-plugin/jquery.mCustomScrollbar.concat.min.js"></script>
     <script src="js/charts-home.js"></script>
-    <!-- Main File-->
     <script src="js/front.js"></script>
   </body>
 </html>

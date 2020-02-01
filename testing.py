@@ -45,9 +45,12 @@ def register():
 
 @app.route("/dashboard")
 def dashboard():
-    return "This is the Dashboard"
-        
+    return render_template('dashboard.html')
 
+@app.route("/account")
+def account():
+    return render_template('account.html')
+        
 if __name__ == "__main__":
     app.run(debug=True)
     
