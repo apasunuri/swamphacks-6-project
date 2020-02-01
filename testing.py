@@ -7,13 +7,18 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'abc786'
 
+polyline = "ii|sDpjwuNqDAcIAgCA]?w@?wBAc@AgAAyAAiBCK?aAA_A?eAA_A?iAAwB?m@AiC?Q?_C@Y@S?eA?M@eA@"
+
+start_point = {
+    'lat' : 29.64133,
+    'lng' : -82.37241
+}
+
 class RegistrationForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
     remember_me = BooleanField('remember-me', validators=[DataRequired()])
     # submit = SubmitField('Sign In')
-
-
 
 @app.route("/")
 def home():
@@ -22,6 +27,10 @@ def home():
 # @app.route("/registration")
 # def register():
 #     return render_template("register.html")
+
+@app.route("/map")
+def map():
+    return render_template('map.html', start_point=start_point, polyline=polyline)
     
 @app.route("/register", methods=['GET','POST'])
 def register():
