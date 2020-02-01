@@ -40,6 +40,10 @@ def register():
     return render_template("register.html", form=form)
     # username = request.form['email']
     # password = request.form['pass']
+
+@app.route("/dashboard")
+def dashboard():
+    return "This is the Dashboard"
         
 
 if __name__ == "__main__":
