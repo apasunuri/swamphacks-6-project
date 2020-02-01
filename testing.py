@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, current_app
+from flask import Flask, render_template, request, current_app, url_for
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email
@@ -15,8 +15,10 @@ start_point = {
 }
 
 class RegistrationForm(FlaskForm):
+    name = StringField('name', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+    reenter_password = PasswordField('retype password', validators=[DataRequired()])
     remember_me = BooleanField('remember-me', validators=[DataRequired()])
     # submit = SubmitField('Sign In')
 
