@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Robot Travel</title>
+    <title>Travel Bot</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="all,follow">
@@ -73,7 +73,7 @@
           <div class="container-fluid">
             <div class="navbar-holder d-flex align-items-center justify-content-between">
               <div class="navbar-header"><a id="toggle-btn" href="#" class="menu-btn"><i class="icon-bars"> </i></a><a href="/dashboard" class="navbar-brand">
-                  <div class="brand-text d-none d-md-inline-block"><span>Robot</span><strong class="text-primary">Travel</strong></div></a></div>
+                  <div class="brand-text d-none d-md-inline-block"><span>Travel</span><strong class="text-primary">Bot</strong></div></a></div>
               <ul class="nav-menu list-unstyled d-flex flex-md-row align-items-md-center">
                 <li class="nav-item"><a href="/" class="nav-link logout"> <span class="d-none d-sm-inline-block">Logout</span><i class="fa fa-sign-out"></i></a></li>
               </ul>
@@ -82,25 +82,23 @@
         </nav>
       </header>
 
-      <div class="container mt-5">
-        <form class="d-flex" style="float: left;" action="" method="post">  
-          <div class="form-group">               
-            <div class="form-control input text">
-              {{ form.From }}
-            </div></div>>
-          <!-- </div> -->
-          <div>
-            <div class="form-control input text">
-              {{ form.To }} 
+      <div class="container mt-3">
+        <form class="d-flex" style="float: left;" action="" method="post">
+          <div class="row" style="height: 75px; float: left;">
+            <div class="col">
+              {{ form.From(class_="form-control") }}
             </div>
-          </div>
-            <div class="input submit">
-              <input type="submit" value="Submit">
+            <div class="col">
+              {{ form.To(class_="form-control") }}
             </div>
+            <div style="float: right;" class="input submit">
+              <input style="background-color:#33b35a" class="btn btn-md btn-secondary" type="submit" value="Submit">
+            </div>
+          </div> 
         </form>
       </div>
-
-      <section class="dashboard-counts section-padding">
+      
+      <section style="display: inline-block; margin: auto; width: 100%; padding-top: 0;"class="dashboard-counts section-padding">
         <div class="container-fluid">
           <div class="row justify-content-center">
             <div class="col-xl-2 col-md-4 col-6">
