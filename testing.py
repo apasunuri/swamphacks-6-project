@@ -89,14 +89,15 @@ def register():
     return render_template("register.html", form=form)
 
 @app.route("/dashboard", methods=['GET', 'POST'])
-def search():
+def search(origin = '', dest = ''):
     search = SearchBar()
     if search.is_submitted():
-        origin = search.From.data
-        dest = search.To.data
+        if(origin == '' or dest == ''):
+            origin = search.From.data
+            dest = search.To.data
         print(origin)
         print(dest)
-    return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search)  
+    return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search, queries=queries)  
 # def dashboard():
 #     return render_template('dashboard.html')
 
