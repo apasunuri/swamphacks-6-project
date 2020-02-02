@@ -2,7 +2,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask, render_template, request, current_app, url_for, redirect, flash
 from flask_login import login_user, current_user, logout_user, UserMixin, LoginManager
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField
 from wtforms.validators import DataRequired, Length, Email
 import requests
 import json
@@ -24,6 +24,7 @@ login_manager.init_app(app)
 
 #backend
 backend_url = 'https://tester-267001.appspot.com'
+
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -60,6 +61,12 @@ class RegistrationForm(FlaskForm):
 class SearchBar(FlaskForm):
     From = StringField('From', validators=[DataRequired()])
     To = StringField('To', validators=[DataRequired()])
+    Dist = StringField('Distance', validators=[DataRequired()])
+
+class SelectPorts(FlaskForm):
+    From = StringField('From', validators=[DataRequired()])
+    To = SelectField('To', validators=[DataRequired()])
+    Dist = StringField('Distance', validators=[DataRequired()])
 
 
 @app.route("/", methods=['GET', 'POST'])
@@ -120,6 +127,8 @@ def register():
 def search(query_id=None):
     if current_user.auth_token == None:
         return render_template('home')
+    first_name = current_user.name.split()[0]
+    last_name = current_user.name.split()[1] if len(current_user.name.split()) > 1 else ''
     search = SearchBar()
     #defaults
     origin = {'lat': 0, 'lng': 0}
@@ -127,8 +136,6 @@ def search(query_id=None):
     way = [{'lat': 0, 'lng': 0}]
     tim = "00:00"
     dist = "0.0"
-    first_name = current_user.name.split()[0]
-    last_name = current_user.name.split()[1] if len(current_user.name.split()) > 1 else ''
     query_request = {'auth_token' : current_user.auth_token, 'query_id' : current_user.user_id}
     query_response = requests.post(backend_url + '/map/query/get', json=query_request) 
     if(query_response.status_code != 200):
@@ -139,7 +146,7 @@ def search(query_id=None):
         origin = search.From.data
         dest = search.To.data
         #confirm succesful query
-        tempd = {'auth_token': current_user.auth_token, 'entry_o': origin, 'entry_d': dest}
+        tempd = {'auth_token': current_user.auth_token, 'entry_o': origin, 'entry_d': dest, 'distance': search.Dist.data}
         response = requests.post(backend_url+'/map/query/new', json=tempd)
         if response.status_code != 200 :
             print("Error, no response")
@@ -166,14 +173,60 @@ def search(query_id=None):
             print(jobj)
             flash(jobj['message'], 'danger')
             return redirect(url_for('home'))
-        way = jobj['deviations']
-        tim = jobj['time']
-        dist = jobj['distance']
-    return render_template('dashboard.html', start_point=jobj['start'], end_point=jobj['end'], waypoints=[{"location": x} for x in way], form=search, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=tim, distance=dist)
+        way = jobj.get('deviations', [])
+        tim = jobj.get('time', '00:00')
+        dist = jobj.get('distance', '0.00')
+    return render_template('dashboard.html', start_point=jobj.get('start', 0), end_point=jobj.get('end', 0), waypoints=[{"location": x} for x in way], form=search, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=tim, distance=dist)
 
-@app.route("/account")
+@app.route("/seaports", methods=['GET', 'POST'])
 def account():
-    return render_template('account.html')
+    first_name = current_user.name.split()[0]
+    last_name = current_user.name.split()[1] if len(current_user.name.split()) > 1 else ''
+    selectports = SelectPorts()
+    cruise_response = requests.get(backend_url + '/map/ports/get').json()
+    selectports.To.choices = [(x, x) for x in cruise_response['ports']]
+    if selectports.is_submitted():
+        origin = selectports.From.data
+        dest = selectports.To.data
+        #confirm succesful query
+        tempd = {'auth_token': current_user.auth_token, 'entry_o': origin, 'entry_d': dest, 'distance': selectports.Dist.data}
+        response = requests.post(backend_url+'/map/query/new', json=tempd)
+        if response.status_code != 200 :
+            print("Error, no response")
+        else:
+            jobj = response.json()
+            print(jobj)
+            if jobj['status'] != 0:
+                print(jobj)
+                flash(jobj['message'], 'danger')
+                return redirect(url_for('home'))
+        #create points
+    query_request = {'auth_token' : current_user.auth_token, 'query_id' : current_user.user_id}
+    query_response = requests.post(backend_url + '/map/query/get', json=query_request) 
+    if(query_response.status_code != 200):
+        print("Error, No Response {}".format(query_response.status_code))
+    else:
+        query_response = query_response.json()
+    query_id = request.args.get('query_id')
+    print(query_id)
+    if query_id is None:
+        wayjson = {'auth_token': current_user.auth_token}
+    else:
+        wayjson = {'auth_token': current_user.auth_token, 'query_id': query_id}
+    way_response = requests.post(backend_url+'/map/query/result', json=wayjson)
+    if way_response.status_code != 200:
+        print("Error, no response {}".format(way_response.status_code))
+    else:
+        jobj = way_response.json()
+        if jobj['status'] != 0:
+            print(jobj)
+            flash(jobj['message'], 'danger')
+            return redirect(url_for('home'))
+        way = jobj.get('deviations', [])
+        tim = jobj.get('time', '00:00')
+        dist = jobj.get('distance', '0.00')
+    return render_template('seaports.html', start_point=jobj.get('start', 0), end_point=jobj.get('end', 0), waypoints=[{"location": x} for x in way], form=selectports, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=tim, distance=dist)
+    # return render_template('seaports.html', cruise_response=cruise_response, first_name=first_name, last_name=last_name, form=selectports)
         
 if __name__ == "__main__":
     app.run(debug=True)
