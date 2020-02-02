@@ -42,6 +42,7 @@ class User(db.Model, UserMixin):
         self.email = email
         self.auth_token = auth_token
 
+
 #login classes
 class LoginForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
@@ -60,6 +61,7 @@ class SearchBar(FlaskForm):
     From = StringField('From', validators=[DataRequired()])
     To = StringField('To', validators=[DataRequired()])
 
+
 @app.route("/", methods=['GET', 'POST'])
 def home():
     db.create_all()
@@ -67,7 +69,6 @@ def home():
     if(login.is_submitted()):
         email = login.email.data
         password =  login.password.data
-        
         req = {
             "email" : email,
             "password" : password
@@ -117,10 +118,15 @@ def register():
 
 @app.route("/dashboard", methods=['GET', 'POST'])
 def search(query_id=None):
+    if current_user.auth_token == None:
+        return render_template('home')
     search = SearchBar()
+    #defaults
     origin = {'lat': 0, 'lng': 0}
     dest = {'lat': 0, 'lng': 0}
     way = [{'lat': 0, 'lng': 0}]
+    tim = "00:00"
+    dist = "0.0"
     first_name = current_user.name.split()[0]
     last_name = current_user.name.split()[1]
     query_request = {'auth_token' : current_user.auth_token, 'query_id' : current_user.user_id}
@@ -140,21 +146,30 @@ def search(query_id=None):
         else:
             jobj = response.json()
             print(jobj)
+            if jobj['status'] != 0:
+                print(jobj)
+                flash(jobj['message'], 'danger')
+                return redirect(url_for('home'))
         #create points
-    query_id = request.args.get('query_id')
-    print(query_id)
+        query_id = request.args.get('query_id')
+        print(query_id)
     if query_id is None:
         wayjson = {'auth_token': current_user.auth_token}
     else:
         wayjson = {'auth_token': current_user.auth_token, 'query_id': query_id}
     way_response = requests.post(backend_url+'/map/query/result', json=wayjson)
-    jobj = way_response.json()
-    print(jobj)
     if way_response.status_code != 200:
         print("Error, no response {}".format(way_response.status_code))
     else:
+        jobj = way_response.json()
+        if jobj['status'] != 0:
+            print(jobj)
+            flash(jobj['message'], 'danger')
+            return redirect(url_for('home'))
         way = jobj['deviations']
-    return render_template('dashboard.html', start_point=jobj['start'], end_point=jobj['end'], waypoints=[{"location": x} for x in way], form=search, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=jobj['time'], distance=jobj['distance'])
+        tim = jobj['time']
+        dist = jobj['distance']
+    return render_template('dashboard.html', start_point=origin, end_point=dest, waypoints=[{"location": x} for x in way], form=search, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=tim, distance=dist)
 
 @app.route("/account")
 def account():
