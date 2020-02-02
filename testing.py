@@ -19,6 +19,14 @@ app.config['SECRET_KEY'] = 'abc786'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+app.config['CLOUDSQL_USER'] = os.environ.get('CLOUDSQL_USER')
+app.config['CLOUDSQL_DATABASE'] = os.environ.get('CLOUDSQL_DATABASE')
+app.config['CLOUDSQL_CONNECTION_NAME'] = os.environ.get('CLOUDSQL_CONNECTION_NAME')
+app.config['SQLALCHEMY_DATABASE_URI'] = (
+    'mysql+pymysql://{user}:{password}@localhost/{database}?unix_socket=/cloudsql/{connection_name}').format(
+    user=CLOUDSQL_USER, password=CLOUDSQL_PASSWORD, database=CLOUDSQL_DATABASE,
+    connection_name=CLOUDSQL_CONNECTION_NAME)
+
 db.init_app(app)
 login_manager.init_app(app)
 
