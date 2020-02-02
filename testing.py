@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'abc786'
 polyline = "ii|sDpjwuNqDAcIAgCA]?w@?wBAc@AgAAyAAiBCK?aAA_A?eAA_A?iAAwB?m@AiC?Q?_C@Y@S?eA?M@eA@"
 
-backend_url = 'http://localhost:8080'
+backend_url = 'https://tester-267001.appspot.com'
 
 request = {
     "status": 0, 
@@ -80,7 +80,7 @@ def register():
                 "password" : password
             }
             r = requests.post(backend_url + '/register', json=req)
-            if(r.status_code == 200):
+            if(r['status'] == 0):
                 return redirect(url_for('search'))
             else:
                 return redirect(url_for('register'))
@@ -93,6 +93,7 @@ def search():
     if search.validate_on_submit():
         origin = search.From.data
         dest = search.To.data
+        print(origin, dest)
     return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search)  
 # def dashboard():
 #     return render_template('dashboard.html')
