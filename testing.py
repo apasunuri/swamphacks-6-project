@@ -1,31 +1,51 @@
-from flask import Flask, render_template, request, current_app, url_for, redirect
+from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, request, current_app, url_for, redirect, flash
+from flask_login import login_user, current_user, logout_user, UserMixin, LoginManager
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email
 import requests
 
+#frontend session database
+db = SQLAlchemy()
+login_manager = LoginManager()
+login_manager.login_view = 'login'
+login_manager.login_message_category = 'info'
+
+#application settings
 app = Flask(__name__)
-
 app.config['SECRET_KEY'] = 'abc786'
-polyline = "ii|sDpjwuNqDAcIAgCA]?w@?wBAc@AgAAyAAiBCK?aAA_A?eAA_A?iAAwB?m@AiC?Q?_C@Y@S?eA?M@eA@"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+db.init_app(app)
+login_manager.init_app(app)
+
+#backend
 backend_url = 'https://tester-267001.appspot.com'
 
-request = {
-    "status": 0, 
-    "message": "Basic Route Created Successfully", 
-    "start": "University of Florida", 
-    "end": "Georgia Tech",
-    "deviations": [
-        {'location': {"lat" : 30.75429950000001, "lng" : -83.2732205}}, 
-        {'location': {"lat" : 32.1904529, "lng" : -83.7493425}}, 
-        {'location': {"lat" : 33.4328247, "lng" : -84.1849962}}
-    ]
-}
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
+class User(db.Model, UserMixin):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer)
+    name = db.Column(db.String(127))
+    email = db.Column(db.String(127))
+    auth_token = db.Column(db.String(127))
+
+    def __init__(self, id, name, email, auth_token):
+        self.user_id = id
+        self.name = name
+        self.email = email
+        self.auth_token = auth_token
+
+#login classes
 class LoginForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
+    remember = BooleanField('remember-me', validators=[DataRequired()])
     submit = SubmitField('Log In')
 
 class RegistrationForm(FlaskForm):
@@ -33,40 +53,43 @@ class RegistrationForm(FlaskForm):
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
     retype_password = PasswordField('retype_password', validators=[DataRequired()])
-    remember_me = BooleanField('remember-me', validators=[DataRequired()])
     submit = SubmitField('Sign Up')
 
 class SearchBar(FlaskForm):
     From = StringField('From', validators=[DataRequired()])
     To = StringField('To', validators=[DataRequired()])
-    From = StringField('From',validators=[DataRequired(), Length(1,64)], render_kw={'style': 'width:500px', "placeholder": "From"})
-    To = StringField('To', render_kw={'style': 'width:500px', "placeholder": "To"}, validators=[DataRequired()])
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
+    db.create_all()
     login = LoginForm()
     if(login.is_submitted()):
         email = login.email.data
         password =  login.password.data
+        
         req = {
             "email" : email,
             "password" : password
         }
-        r = requests.post(backend_url + '/login', json=req)
-        if(r.status_code == 200):
+        response = requests.post(backend_url + '/login', json=req)
+        if(response.status_code == 200):
+            job = response.json()
+            if job['status'] != 0:
+                print(job)
+                flash(job['message'], 'danger')
+                return redirect(url_for('home'))
+            print(job) 
+            jobj = job['user']
+            user = User(jobj['id'], jobj['name'], jobj['email'], jobj['auth_token'])
+            db.session.add(user)
+            db.session.commit()
+            login_user(user, remember=login.remember.data)
             return redirect(url_for('search'))
         else:
+            flash("ERROR")
             return redirect(url_for('home'))
     return render_template("index.html", form=login)
 
-# @app.route("/registration")
-# def register():
-#     return render_template("register.html")
-
-@app.route("/map")
-def map():
-    return render_template('map.html', start_point=start_point, polyline=polyline)
-    
 @app.route("/register", methods=['GET','POST'])
 def register():
     form = RegistrationForm()
@@ -81,24 +104,46 @@ def register():
                 "email" : email,
                 "password" : password
             }
-            r = requests.post(backend_url + '/register', json=req)
-            if(r.status_code == 200):
-                return redirect(url_for('search'))
+            rresponse = requests.post(backend_url + '/register', json=req) 
+            if(rresponse.status_code == 200):
+                jobj = rresponse.json()
+                print(jobj)
+                print(req)
+                return redirect(url_for('home'))
             else:
                 return redirect(url_for('register'))
     return render_template("register.html", form=form)
 
 @app.route("/dashboard", methods=['GET', 'POST'])
 def search():
+    
     search = SearchBar()
-    if search.is_submitted():
+    origin = {'lat': 0, 'lng': 0}
+    dest = {'lat': 0, 'lng': 0}
+    way = [{'lat': 0, 'lng': 0}]
+    if search.validate_on_submit():
         origin = search.From.data
         dest = search.To.data
-        print(origin)
-        print(dest)
-    return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search)  
-# def dashboard():
-#     return render_template('dashboard.html')
+        #confirm succesful query
+        tempd = {'auth_token': current_user, 'entry_o': origin, 'entry_d': dest}
+        j = json.dumps(tempd)
+        response = requests.post(API_URL+'/map/query/new', json=j)
+        if repsonse.status_code != 200:
+            print("Error, no response")
+        else:
+            jobj = response.json()
+            print(jobj)
+        #create points
+        tempd = {'auth_token': current_user, 'entry_o': origin, 'entry_d': dest}
+        j = json.dumps(tempd)
+        response = requests.post(API_URL+'/map/query/result', json=j)
+        if repsonse.status_code != 200:
+            print("Error, no response")
+        else:
+            jobj = response.json()
+            print(jobj)
+            way = jobj['deviations']
+    return render_template('dashboard.html', start_point=origin, end_point=dest, waypoints=way, form=search)
 
 @app.route("/account")
 def account():
