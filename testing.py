@@ -5,6 +5,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email
 import requests
+import json
 
 #frontend session database
 db = SQLAlchemy()
@@ -125,24 +126,23 @@ def search(origin = '', dest = ''):
             origin = search.From.data
             dest = search.To.data
         #confirm succesful query
-        tempd = {'auth_token': current_user, 'entry_o': origin, 'entry_d': dest}
-        j = json.dumps(tempd)
-        response = requests.post(API_URL+'/map/query/new', json=j)
-        if repsonse.status_code != 200:
+        tempd = {'auth_token': current_user.auth_token, 'entry_o': origin, 'entry_d': dest}
+        response = requests.post(backend_url+'/map/query/new', json=tempd)
+        if response.status_code != 200:
             print("Error, no response")
         else:
             jobj = response.json()
             print(jobj)
         #create points
-        tempd = {'auth_token': current_user, 'entry_o': origin, 'entry_d': dest}
-        j = json.dumps(tempd)
-        response = requests.post(API_URL+'/map/query/result', json=j)
-        if repsonse.status_code != 200:
-            print("Error, no response")
+        wayjson = {'auth_token': current_user.auth_token}
+        way_response = requests.post(backend_url+'/map/query/result', json=tempd)
+        if way_response.status_code != 200:
+            print("Error, no response {}".format(way_response.status_code))
         else:
-            jobj = response.json()
+            jobj = way_response.json()
             print(jobj)
             way = jobj['deviations']
+            print(way)
     return render_template('dashboard.html', start_point=origin, end_point=dest, waypoints=way, form=search)
 
 @app.route("/account")
