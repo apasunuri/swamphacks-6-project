@@ -82,29 +82,26 @@
         </nav>
       </header>
 
-      <div class="container mt-5">
-        <form class="d-flex" style="float: left;" action="" method="post">  
-          <div class="form-group">               
-            <div class="form-control input text">
-              {{ form.From }}
-            </div></div>>
-          <!-- </div> -->
-          <div>
-            <div class="form-control input text">
-              {{ form.To }} 
+      <div class="container mt-3">
+        <form class="d-flex" style="float: left;" action="" method="POST">
+          <div class="row" style="height: 75px; float: left;">
+            <div class="col">
+              {{ form.From(class_="form-control") }}
             </div>
-          </div>
-            <div class="input submit">
-              <input type="submit" value="Submit">
+            <div class="col">
+              {{ form.To(class_="form-control") }}
             </div>
+            <div style="float: right;" class="input submit">
+              <input style="background-color:#33b35a" class="btn btn-md btn-secondary" type="submit" id="submit" value="Submit">
+            </div>
+          </div> 
         </form>
       </div>
 
-      <section class="dashboard-counts section-padding">
+      <section style="display: inline-block; margin: auto; width: 100%; padding-top: 0;"class="dashboard-counts section-padding">
         <div class="container-fluid">
           <div class="row justify-content-center">
-            <div class="col-xl-2 col-md-4 col-6">
-            
+            <div class="col-xl-2 col-md-4 col-6">    
               <div class="wrapper count-title d-flex">
                 <!--<div class="icon"><i class="icon-user"></i></div>-->
                 <div class="name"><strong class="text-uppercase">Distance</strong><span>Miles</span>
