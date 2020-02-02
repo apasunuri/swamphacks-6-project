@@ -47,9 +47,9 @@
       <div class="side-navbar-wrapper">
         <div class="sidenav-header d-flex align-items-center justify-content-center">
           <div class="sidenav-header-inner text-center">
-            <h2 class="h5">Firstname Lastname</h2>
+            <h2 class="h5">{{ first_name }} {{ last_name }}</h2>
           </div>
-          <div class="sidenav-header-logo"><a href="/dashboard" class="brand-small text-center"><strong>F</strong><strong class="text-primary">L</A></strong></a></div>
+          <div class="sidenav-header-logo"><a href="/dashboard" class="brand-small text-center"><strong>{{ first_name[0] }}</strong><strong class="text-primary">{{ last_name[0] }}</A></strong></a></div>
         </div>
         <div class="main-menu">
           <h5 class="sidenav-heading">Main</h5>
@@ -58,7 +58,9 @@
             <li><a href="/account"> <i class="fa fa-bar-chart"></i>Account</a></li>
             <li><a href="#exampledropdownDropdown" aria-expanded="false" data-toggle="collapse"> <i class="icon-interface-windows"></i>History</a>
               <ul id="exampledropdownDropdown" class="collapse list-unstyled ">
-                <li><a>From,To,Distance</a></li>          
+                {% for query in queries%}
+                <li><a href="{{ url_for('search', query_id=query['id']) }}">#{{ loop.index }} {{ query.start }}, {{ query.end }}, {{ query.distance }}</a></li>
+                {% endfor %}
               </ul>
             </li>
           </ul>
@@ -103,7 +105,7 @@
               <div class="wrapper count-title d-flex">
                 <!--<div class="icon"><i class="icon-user"></i></div>-->
                 <div class="name"><strong class="text-uppercase">Distance</strong><span>Miles</span>
-                  <div class="count-number">25</div>
+                  <div class="count-number">{{ distance }}</div>
                 </div>
               </div>
             </div>
@@ -111,15 +113,15 @@
               <div class="wrapper count-title d-flex">
                 <!--<div class="icon"><i class="icon-padnote"></i></div>-->
                 <div class="name"><strong class="text-uppercase">Time</strong><span>Hours:Minutes</span>
-                  <div class="count-number">1:40</div>
+                  <div class="count-number">{{ time }}</div>
                 </div>
               </div>
             </div>
             <div class="col-xl-2 col-md-4 col-6">
               <div class="wrapper count-title d-flex">
                <!-- <div class="icon"><i class="icon-check"></i></div>-->
-                <div class="name"><strong class="text-uppercase">Destinations</strong><span>Number</span>
-                  <div class="count-number">342</div>
+                <div class="name"><strong class="text-uppercase">Stopovers</strong><span>Number</span>
+                  <div class="count-number">{{ waypoints | length }}</div>
                 </div>
               </div>
             </div>
