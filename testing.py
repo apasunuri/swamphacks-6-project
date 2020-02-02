@@ -128,7 +128,7 @@ def search(query_id=None):
     tim = "00:00"
     dist = "0.0"
     first_name = current_user.name.split()[0]
-    last_name = current_user.name.split()[1]
+    last_name = current_user.name.split()[1] if len(current_user.name.split()) > 1 else ''
     query_request = {'auth_token' : current_user.auth_token, 'query_id' : current_user.user_id}
     query_response = requests.post(backend_url + '/map/query/get', json=query_request) 
     if(query_response.status_code != 200):
@@ -151,8 +151,8 @@ def search(query_id=None):
                 flash(jobj['message'], 'danger')
                 return redirect(url_for('home'))
         #create points
-        query_id = request.args.get('query_id')
-        print(query_id)
+    query_id = request.args.get('query_id')
+    print(query_id)
     if query_id is None:
         wayjson = {'auth_token': current_user.auth_token}
     else:
@@ -169,7 +169,7 @@ def search(query_id=None):
         way = jobj['deviations']
         tim = jobj['time']
         dist = jobj['distance']
-    return render_template('dashboard.html', start_point=origin, end_point=dest, waypoints=[{"location": x} for x in way], form=search, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=tim, distance=dist)
+    return render_template('dashboard.html', start_point=jobj['start'], end_point=jobj['end'], waypoints=[{"location": x} for x in way], form=search, first_name=first_name, last_name=last_name, queries=query_response['queries'], time=tim, distance=dist)
 
 @app.route("/account")
 def account():
