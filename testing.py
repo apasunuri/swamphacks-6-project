@@ -143,7 +143,7 @@ def search(origin = '', dest = ''):
             jobj = response.json()
             print(jobj)
             way = jobj['deviations']
-    return render_template('dashboard.html', start_point=origin, end_point=dest, waypoints=way, form=search, queries=queries)
+    return render_template('dashboard.html', start_point=origin, end_point=dest, waypoints=way, form=search)
 
 @app.route("/account")
 def account():
