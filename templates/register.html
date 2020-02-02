@@ -32,7 +32,7 @@
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
-				<form method="POST" class="login100-form validate-form">
+				<form method="POST" class="login100-form validate-form" action="">
 
 					{{form.hidden_tag()}}
 
@@ -74,8 +74,8 @@
 
 					<div class="wrap-input100 validate-input" data-validate="Password is required">
 
-						{{form.reenter_password.label(class="form-control-label")}}
-						{{form.reenter_password(class="form-control form-control-lg")}}
+						{{form.retype_password.label(class="form-control-label")}}
+						{{form.retype_password(class="form-control form-control-lg")}}
 
 
 						<!-- <input class="input100" type="password" name="pass"> -->
@@ -102,7 +102,7 @@
 			
 
 					<div class="container-login100-form-btn">
-						<button class="login100-form-btn">
+						<button type="submit" id="submit" class="login100-form-btn">
 							Register
 						</button>
 					</div>

@@ -1,34 +1,15 @@
-from flask import Flask, render_template, request, current_app, url_for
+from flask import Flask, render_template, request, current_app, url_for, redirect
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, Length, Email
+import requests
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'abc786'
-
 polyline = "ii|sDpjwuNqDAcIAgCA]?w@?wBAc@AgAAyAAiBCK?aAA_A?eAA_A?iAAwB?m@AiC?Q?_C@Y@S?eA?M@eA@"
 
-start_point = {
-    'lat' : 29.64133,
-    'lng' : -82.37241
-}
-
-end_point = {
-    'lat' : 34.048927,
-    'lng' : -111.093735
-}
-
-waypoints = [
-    {
-        'location' : 'New York, NY',
-        'stopover' : False
-    },
-    {
-        'location' : 'Atlanta, GA',
-        'stopover' : False
-    }
-]
+backend_url = 'http://localhost:8080'
 
 request = {
     "status": 0, 
@@ -42,21 +23,39 @@ request = {
     ]
 }
 
+class LoginForm(FlaskForm):
+    email = StringField('email', validators=[DataRequired()])
+    password = PasswordField('password', validators=[DataRequired()])
+    submit = SubmitField('Log In')
+
 class RegistrationForm(FlaskForm):
     name = StringField('name', validators=[DataRequired()])
     email = StringField('email', validators=[DataRequired()])
     password = PasswordField('password', validators=[DataRequired()])
-    reenter_password = PasswordField('retype password', validators=[DataRequired()])
+    retype_password = PasswordField('retype_password', validators=[DataRequired()])
     remember_me = BooleanField('remember-me', validators=[DataRequired()])
-    # submit = SubmitField('Sign In')
+    submit = SubmitField('Sign Up')
 
 class SearchBar(FlaskForm):
     From = StringField('From', validators=[DataRequired()])
     To = StringField('To', validators=[DataRequired()])
 
-@app.route("/")
+@app.route("/", methods=['GET', 'POST'])
 def home():
-    return render_template("index.html")
+    login = LoginForm()
+    if(login.is_submitted()):
+        email = login.email.data
+        password =  login.password.data
+        req = {
+            "email" : email,
+            "password" : password
+        }
+        r = requests.post(backend_url + '/login', json=req)
+        if(r.status_code == 200):
+            return redirect(url_for('search'))
+        else:
+            return redirect(url_for('home'))
+    return render_template("index.html", form=login)
 
 # @app.route("/registration")
 # def register():
@@ -69,11 +68,23 @@ def map():
 @app.route("/register", methods=['GET','POST'])
 def register():
     form = RegistrationForm()
-    # if form.validate_on_submit():
-    #     flash()
+    if(form.is_submitted()):
+        name = form.name.data
+        email = form.email.data
+        password = form.password.data
+        retype_password = form.retype_password.data
+        if(password == retype_password):
+            req = {
+                "name" : name,
+                "email" : email,
+                "password" : password
+            }
+            r = requests.post(backend_url + '/register', json=req)
+            if(r.status_code == 200):
+                return redirect(url_for('search'))
+            else:
+                return redirect(url_for('register'))
     return render_template("register.html", form=form)
-    # username = request.form['email']
-    # password = request.form['pass']
 
 
 @app.route("/dashboard", methods=['GET', 'POST'])
@@ -85,9 +96,6 @@ def search():
     return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search)  
 # def dashboard():
 #     return render_template('dashboard.html')
-
-
-
 
 @app.route("/account")
 def account():
