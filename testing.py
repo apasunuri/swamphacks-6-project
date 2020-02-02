@@ -39,6 +39,8 @@ class RegistrationForm(FlaskForm):
 class SearchBar(FlaskForm):
     From = StringField('From', validators=[DataRequired()])
     To = StringField('To', validators=[DataRequired()])
+    From = StringField('From',validators=[DataRequired(), Length(1,64)], render_kw={'style': 'width:500px', "placeholder": "From"})
+    To = StringField('To', render_kw={'style': 'width:500px', "placeholder": "To"}, validators=[DataRequired()])
 
 @app.route("/", methods=['GET', 'POST'])
 def home():
@@ -86,14 +88,14 @@ def register():
                 return redirect(url_for('register'))
     return render_template("register.html", form=form)
 
-
 @app.route("/dashboard", methods=['GET', 'POST'])
 def search():
     search = SearchBar()
-    if search.validate_on_submit():
+    if search.is_submitted():
         origin = search.From.data
         dest = search.To.data
-        print(origin, dest)
+        print(origin)
+        print(dest)
     return render_template('dashboard.html', start_point=request["start"], end_point=request["end"], polyline=polyline, waypoints=request["deviations"], form=search)  
 # def dashboard():
 #     return render_template('dashboard.html')
